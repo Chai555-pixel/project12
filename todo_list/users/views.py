@@ -1,10 +1,9 @@
-# users/views.py
 from django.contrib.auth.forms import UserCreationForm
 from django.views.generic.edit import CreateView
 from django.urls import reverse_lazy
 from django.contrib import messages
-from django.shortcuts import render, redirect
 from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth import login
 
 class MyLoginView(LoginView):
     template_name = 'users/login.html'
@@ -23,11 +22,15 @@ class MyLogoutView(LogoutView):
         messages.success(request, "You have logged out successfully.")
         return super().dispatch(request, *args, **kwargs)
 
-class SignUpView(CreateView):
+
+class RegisterView(CreateView):  # Renaming from SignUpView to RegisterView
     form_class = UserCreationForm
-    template_name = 'users/login.html'  # Specify the template for the signup form
-    success_url = '/'  # Redirect to home or another page upon successful registration
+    template_name = 'users/register.html'  # Use 'register.html' for the signup form
+    success_url = reverse_lazy('login')  # Redirect to login page after successful registration
 
     def form_valid(self, form):
         response = super().form_valid(form)
+        user = form.save()  # Save the new user
+        login(self.request, user)  # Log the user in immediately after signup
+        messages.success(self.request, "Your account has been created successfully!")
         return response

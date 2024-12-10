@@ -1,3 +1,4 @@
+<!-- templates/base.html -->
 {% load static %}
 
 <!DOCTYPE html>
@@ -14,15 +15,14 @@
             <a href="{% url 'home' %}" class="logo">Todo</a>
             <nav class="nav">
                 <a href="{% url 'home' %}"><i class="bi bi-house-fill"></i> Home</a>
-
                 {% if request.user.is_authenticated %}
                     <a href="{% url 'tasks' %}"><i class="bi bi-list-task"></i> My Tasks</a>
                     <a href="{% url 'task-create' %}"><i class="bi bi-plus-circle"></i> Create Task</a>
-                    <a href="#">Hi {{ request.user.username|title }}</a>
+                    <a href="#">Hi {{ request.user | title }}</a>
                     <a href="{% url 'logout' %}" class="btn btn-outline">Logout</a>
                 {% else %}
                     <a href="{% url 'login' %}" class="btn btn-outline">Login</a>
-                    <a href="#" class="btn btn-primary">Join Now</a>
+                    <a href="{% url 'register' %}" class="btn btn-primary">Join Now</a>
                 {% endif %}
             </nav>
         </div>
@@ -37,7 +37,7 @@
                     </div>
                 {% endfor %}
             {% endif %}
-
+            
             {% block content %}
             {% endblock content %}
         </div>

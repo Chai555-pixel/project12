@@ -1,14 +1,14 @@
 <!-- templates/home.html -->
 {% extends 'base.html' %}
-
-{% block title %}Home - Todo App{% endblock %}
+{% load static %}
 
 {% block content %}
-<div class="text-center my-5">
-    <h1>Welcome to Todo</h1>
-    <p>Todo helps you focus, whether you're working or playing.</p>
-    <p>Manage your tasks effectively and stay on top of your to-do list!</p>
-
-    <a href="{% url 'login' %}" class="btn btn-primary btn-lg">Get Started</a>
-</div>
-{% endblock %}
+<section class="feature">
+    <div class="feature-content">
+        <h1>Todo</h1>
+        <p>Todo helps you focus, either work or play.</p>
+        <a class="btn btn-primary cta" href="{% url 'register' %}">Get Started</a>
+    </div>
+    <img src="{% static 'images/feature.jpg' %}" alt="" class="feature-image">
+</section>
+{% endblock content %}
