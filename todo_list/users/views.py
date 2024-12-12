@@ -1,36 +1,36 @@
-from django.contrib.auth.forms import UserCreationForm
-from django.views.generic.edit import CreateView
-from django.urls import reverse_lazy
+# users/views.py
+
+from django.shortcuts import render, redirect
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views import View
+from .forms import UserUpdateForm, ProfileUpdateForm
 from django.contrib import messages
-from django.contrib.auth.views import LoginView, LogoutView
-from django.contrib.auth import login
 
-class MyLoginView(LoginView):
-    template_name = 'users/login.html'
-    redirect_authenticated_user = True  # Redirect authenticated users to a specified page
+class MyProfile(LoginRequiredMixin, View):
+    def get(self, request):
+        user_form = UserUpdateForm(instance=request.user)
+        profile_form = ProfileUpdateForm(instance=request.user.profile)
 
-    def get_success_url(self):
-        return reverse_lazy('tasks')  # Redirect to 'tasks' view after successful login
+        context = {
+            'user_form': user_form,
+            'profile_form': profile_form
+        }
 
-    def form_invalid(self, form):
-        messages.error(self.request, 'Invalid username or password')  # Display error message
-        return self.render_to_response(self.get_context_data(form=form))
+        return render(request, 'users/profile.html', context)
 
+    def post(self, request):
+        user_form = UserUpdateForm(request.POST, instance=request.user)
+        profile_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
 
-class MyLogoutView(LogoutView):
-    def dispatch(self, request, *args, **kwargs):
-        messages.success(request, "You have logged out successfully.")
-        return super().dispatch(request, *args, **kwargs)
-
-
-class RegisterView(CreateView):  # Renaming from SignUpView to RegisterView
-    form_class = UserCreationForm
-    template_name = 'users/register.html'  # Use 'register.html' for the signup form
-    success_url = reverse_lazy('login')  # Redirect to login page after successful registration
-
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        user = form.save()  # Save the new user
-        login(self.request, user)  # Log the user in immediately after signup
-        messages.success(self.request, "Your account has been created successfully!")
-        return response
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
+            messages.success(request, 'Your profile has been updated successfully')
+            return redirect('profile')
+        else:
+            messages.error(request, 'Error updating your profile')
+            context = {
+                'user_form': user_form,
+                'profile_form': profile_form
+            }
+            return render(request, 'users/profile.html', context)
